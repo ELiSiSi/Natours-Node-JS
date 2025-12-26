@@ -4,7 +4,7 @@ import crypto from 'crypto';
 
 import User from '../models/userModel.js';
 import AppError from '../utils/appError.js';
-import {deleteOne,updateOne,createOne  } from './handlerFactory.js'
+import {deleteOne,updateOne,createOne ,getOne } from './handlerFactory.js'
 
 //-------------------------------------------------------------------------------------------
 export  const createUser= createOne(User);
@@ -16,7 +16,7 @@ const filterObj = (Obj, ...allowedFields) => {
   Object.keys(Obj).forEach((el) => {
     if (allowedFields.includes(el)) newObj[el] = Obj[el];
   });
-  return newObj; 
+  return newObj;
 };
 
 //----------------------------------------------------------------------------------------
@@ -32,6 +32,14 @@ export const getUsers = asyncHandler(async (req, res, next) => {
   });
 });
 
+//----------------------------------------------------------------------------------------
+export const getUserById = getOne(User);
+
+//----------------------------------------------------------------------------------------
+export const getMe = asyncHandler(async (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+})
 //----------------------------------------------------------------------------------------
 export const updateMe = asyncHandler(async (req, res, next) => {
   if (req.body.password || req.body.passwordConfirm) {

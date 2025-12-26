@@ -4,7 +4,7 @@ const sendEmail = async (options) => {
 
  
   const transporter = nodemailer.createTransport({
-host: process.env.EMAIL_HOST,         
+host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
      auth: {
       user: process.env.EMAIL_USERNAME,
@@ -15,10 +15,10 @@ host: process.env.EMAIL_HOST,
   });
  
   const mailOptions = {
-    from: ` ahmed <fsd@gmail.com>`,
-    to: options.email,
-    subject: options.subject,
-    text: options.message,
+    from:`ahmed <fsd@gmail.com>`,
+    to:options.email,
+    subject:options.subject,
+    text:options.message,
   };
  
   const info =   await transporter.sendMail(mailOptions);

@@ -38,6 +38,9 @@ const tourSchema = new mongoose.Schema(
     ratingsAverage: {
       type: Number,
       default: 4.5,
+      min: [1, 'Rating must be above 1.0'],
+      max: [5, 'Rating must be below 5.0'],
+      set: (val) => Math.round(val * 10) / 10, 
     },
     ratingsQuantity: {
       type: Number,
@@ -82,7 +85,6 @@ const tourSchema = new mongoose.Schema(
       },
       coordinates: {
         type: [Number],
-       
       },
       address: String,
       description: String,
@@ -115,17 +117,17 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
-//-------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
-//----------------------------------------------------------------------------------------
-tourSchema.virtual('reviews', {
+ tourSchema.virtual('reviews', {
   ref: 'Review',
   foreignField: 'tour',
   localField: '_id',
 });
+
 
 //----------------------------------------------------------------------------------------
 tourSchema.pre('save', function (next) {
@@ -133,7 +135,7 @@ tourSchema.pre('save', function (next) {
   next();
 });
 
-//----------------------------------------------------------------------------------------
+
 tourSchema.pre('save', async function (next) {
   const guidesPromises = this.guides.map(async (id) => await User.findById(id));
 
@@ -142,13 +144,18 @@ tourSchema.pre('save', async function (next) {
   next();
 });
 
-//-------------------------------------------------------------------------------------
+
 tourSchema.pre(/^find/, function (next) {
   this.find({ secretTour: { $ne: true } });
   this.start = Date.now();
   next();
 });
 
+
+tourSchema.pre('aggregate', function (next) {
+   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+  next();
+});
 //----------------------------------------------------------------------------------------
 tourSchema.post(/^find/, function (next) {
   this.populate({
@@ -157,19 +164,16 @@ tourSchema.post(/^find/, function (next) {
   });
 });
 
-//----------------------------------------------------------------------------------------
+
 tourSchema.post(/^find/, function (docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds!`);
   next();
 });
 
-//------------------------------------------------------------------------------------------------------
-tourSchema.pre('aggregate', function (next) {
-  // قبل تنفيذ أي aggregation، استبعد الرحلات السرية
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-  console.log(this.pipeline());
-  next();
-});
+//----------------------------------------------------------------------------------------
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+tourSchema.index({ startLocation: '2dsphere' });
 
 const Tour = mongoose.model('Tour', tourSchema);
 

@@ -68,7 +68,7 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-//--------------------------------------------------------------------------------------------
+ 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password') || this.isNew) return next();
 
@@ -78,11 +78,12 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-//--------------------------------------------------------------------------------------------
+ 
 userSchema.pre(/^find/, async function (next) {
   this.find({ active: { $ne: false } });
   next();
 });
+
 
 //--------------------------------------------------------------------------------------------
 userSchema.methods.correctPassword = async function (
@@ -105,7 +106,7 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   return false;
 };
 
-//--------------------------------------------------------------------------------------------
+ 
 userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString('hex');
 

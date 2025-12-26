@@ -27,7 +27,7 @@ const createSendToken = (user, statusCode, res) => {
 
   user.password=undefined
 
-  res.cookie('jwt', token,cookieOptions   );
+  res.cookie('jwt', token,cookieOptions);
 
   res.status(statusCode).json({
     status: 'success',
@@ -40,7 +40,15 @@ const createSendToken = (user, statusCode, res) => {
 
 //----------------------------------------------------------------------------------------
 export const signup = asyncHandler(async (req, res, next) => {
-  const newUser = await User.create(req.body);
+  const newUser = await User.create(
+
+    {
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+      passwordConfirm: req.body.passwordConfirm,
+    }
+  );
   createSendToken(newUser, 201, res);
 });
 
@@ -83,10 +91,15 @@ export const protect = asyncHandler(async (req, res, next) => {
   const currentUser = await User.findById(decoded.id);
 
   if (!currentUser) {
+
+
+
     return next(new AppError('The user no longer exists.', 401));
   }
 
   if (currentUser.changedPasswordAfter(decoded.iat)) {
+
+
     return next(
       new AppError('User recently changed password! Please login again.', 401)
     );
@@ -148,9 +161,13 @@ email `;
         ' there was an error sending the email . try again later !!!',
         500
       )
+
+
     );
   }
 });
+
+
 
 //-----------------------------------------------------------------------------------
 export const resetPassword = asyncHandler(async (req, res, next) => {
@@ -176,6 +193,7 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
   await user.save();
 
   createSendToken(user, 200, res);
+
 });
 
 // -----------------------------------------------------------
@@ -190,6 +208,7 @@ export const updatePassword = asyncHandler(async (req, res, next) => {
   }
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
+
 
   createSendToken(user, 200, res);
 });

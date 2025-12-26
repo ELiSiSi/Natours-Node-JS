@@ -1,21 +1,27 @@
- import express from 'express';
+import express from 'express';
 
-import {setTourUserIds, createReview, getAllReviews ,deleteReview ,updateReview} from '../controller/reviewController.js';
+import { protect, restrictTo } from '../controller/authController.js';
 import {
-  restrictTo,
-  protect,
-} from '../controller/authController.js'; 
+  createReview,
+  deleteReview,
+  getAllReviews,
+  getReviewById,
+  setTourUserIds,
+  updateReview,
+} from '../controller/reviewController.js';
 
-const router = express.Router( {mergeParams:true});
+const router = express.Router({ mergeParams: true });
+router.use(protect);
 
 router
   .route('/')
-  .get(protect, getAllReviews)
-  .post(protect, restrictTo('user'), setTourUserIds, createReview);
+  .get(getAllReviews)
+  .post(restrictTo('user'), setTourUserIds, createReview);
 
-  router
-  .route('/:id') 
-    .patch(updateReview)
-  .delete( deleteReview)
+router
+  .route('/:id')
+  .get(getReviewById)
+  .patch(restrictTo('user', 'admin'),updateReview)
+  .delete(restrictTo('user', 'admin'),deleteReview);
 
 export default router;

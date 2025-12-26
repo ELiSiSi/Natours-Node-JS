@@ -1,34 +1,35 @@
 import express from 'express';
 
-import { restrictTo, protect } from '../controller/authController.js';
+import { protect, restrictTo  } from '../controller/authController.js';
 
 import {
-  getTour,
   createTour,
+  deleteTour,
+  getTour,
   getTourById,
   updateTour,
-  deleteTour,
 } from '../controller/tourController.js';
 
 import reviewRouter from './reviewRoute.js';
 
-
-
 const router = express.Router();
 
-router.use('/:tourId/reviews',reviewRouter)
+router.use(protect);
+router.use('/:tourId/reviews', reviewRouter);
+
+// router.route('/tour-within/:distance/center/:latlng/unit/:unit').get();
+
+
 
 router
   .route('/')
-  .get(protect, getTour)
-  .post(protect, restrictTo('admin', 'lead-guide'), createTour);
+  .get(getTour)
+  .post(restrictTo('admin', 'lead-guide'), createTour);
 
 router
   .route('/:id')
-  .get(protect, getTourById)
-  .patch(protect, restrictTo('admin', 'lead-guide'), updateTour)
-  .delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
-
-
+  .get(getTourById)
+  .patch(restrictTo('admin', 'lead-guide'), updateTour)
+  .delete(restrictTo('admin', 'lead-guide'), deleteTour);
 
 export default router;

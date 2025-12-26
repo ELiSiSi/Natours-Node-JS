@@ -8,8 +8,13 @@ const handleCastErrorDB = (err) => {
 
 //---------------------------------------------------------------------------------------------------
 const handleDuplicateFieldsDB = (err) => {
-  const value = err.keyValue ? Object.values(err.keyValue)[0] : 'unknown';
-  const message = `Duplicate field value: ${value}. Please use another value!`;
+  if (!err.keyValue) {
+    return new AppError('Duplicate field value detected!', 400);
+  }
+  const field = Object.keys(err.keyValue)[0];
+  const value = err.keyValue[field] || 'unknown';
+  const message = `Duplicate field value: "${value}". Please use another value for ${field}!`;
+
   return new AppError(message, 400);
 };
 
@@ -21,17 +26,14 @@ const handleValidationErrorDB = (err) => {
 };
 
 //---------------------------------------------------------------------------------------------------
-const handleJWTError = ( ) => {
+const handleJWTError = () => {
   new AppError('The user no longer exists.', 401);
 };
 
 //---------------------------------------------------------------------------------------------------
-const handleJWTExpiredError=( )=>{
-
-new AppError(' your Token has expired !!! please log in again ' ,401)
-
-}
-
+const handleJWTExpiredError = () => {
+  new AppError(' your Token has expired !!! please log in again ', 401);
+};
 
 //---------------------------------------------------------------------------------------------------
 const sendErrorDev = (err, res) => {
@@ -77,10 +79,9 @@ export default (err, req, res, next) => {
     } else if (err.name === 'ValidationError') {
       error = handleValidationErrorDB(err);
     } else if (err.name === 'jsonWebTokenError') {
-      error = handleJWTError( );
-    }else if (err.name==='TokenExpiredError'){
-error = handleJWTExpiredError( )
-
+      error = handleJWTError();
+    } else if (err.name === 'TokenExpiredError') {
+      error = handleJWTExpiredError();
     }
 
     sendErrorPro(error, res);

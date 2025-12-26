@@ -2,7 +2,7 @@
 
 import Review from '../models/reviewMode.js';
 import AppError from '../utils/appError.js';
-import {deleteOne,updateOne,createOne} from './handlerFactory.js'
+import {deleteOne,updateOne,createOne,getOne} from './handlerFactory.js'
 
 
 
@@ -10,7 +10,7 @@ import {deleteOne,updateOne,createOne} from './handlerFactory.js'
 //----------------------------------------------------------------------------------------
 export const setTourUserIds = (req, res, next) => {
   if (!req.body.tour) req.body.tour = req.params.tourId;
-  if (!req.body.user) req.body.user = req.user.id;  
+  if (!req.body.user) req.body.user = req.user.id;
   next();
 };
 
@@ -30,8 +30,10 @@ export const getAllReviews = asyncHandler(async (req, res, next) => {
       reviews,
     },
   });
-}); 
+});
 
+//----------------------------------------------------------------------------------------
+export const getReviewById = getOne(Review);
 //----------------------------------------------------------------------------------------
 export const updateReview =   updateOne(Review);
 
